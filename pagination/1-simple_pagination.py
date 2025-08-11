@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
+"""
+Simple pagination
+"""
+
 import csv
-import math
 from typing import List, Tuple
 
 
 def index_range(page: int, page_size: int) -> Tuple[int, int]:
     """
     Return a tuple containing a start index and an end index
-    for the given page and page_size.
+    corresponding to the range of indexes for the given pagination parameters.
     """
-    start_index = (page - 1) * page_size
-    end_index = start_index + page_size
-    return start_index, end_index
+    start = (page - 1) * page_size
+    end = start + page_size
+    return start, end
 
 
 class Server:
@@ -27,23 +30,27 @@ class Server:
             with open(self.DATA_FILE) as f:
                 reader = csv.reader(f)
                 dataset = [row for row in reader]
-            self.__dataset = dataset[1:]  # Skip header
-
+            self.__dataset = dataset[1:]
         return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
         """
-        Return a specific page of the dataset.
-        """
-        # Validate arguments
-        assert isinstance(page, int) and page > 0, "page must be a positive integer"
-        assert isinstance(page_size, int) and page_size > 0, "page_size must be a positive integer"
+        Return a page of the dataset.
 
-        # Get index range
+        Args:
+            page (int): The page number (1-indexed).
+            page_size (int): The number of items per page.
+
+        Returns:
+            List[List]: A list of rows from the dataset corresponding
+            to the requested page.
+        """
+        assert isinstance(page, int) and page > 0
+        assert isinstance(page_size, int) and page_size > 0
+
         start, end = index_range(page, page_size)
         dataset = self.dataset()
 
-        # Return the requested slice or an empty list if out of range
         if start >= len(dataset):
             return []
         return dataset[start:end]
