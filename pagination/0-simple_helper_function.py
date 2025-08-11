@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
 """
-Simple helper function for pagination
+Simple helper function for pagination.
 """
 
-def index_range(page: int, page_size: int) -> tuple:
+from typing import Tuple
+
+
+def index_range(page: int, page_size: int) -> Tuple[int, int]:
     """
-    Returns a tuple containing the start index and end index for a given page and page size.
+    Return a tuple of start and end indexes for pagination.
 
     Args:
         page (int): The page number (1-indexed).
         page_size (int): The number of items per page.
 
     Returns:
-        tuple: (start_index, end_index)
+        Tuple[int, int]: A tuple containing the start index and the end index.
     """
     start_index = (page - 1) * page_size
     end_index = page * page_size
