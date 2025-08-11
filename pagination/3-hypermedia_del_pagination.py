@@ -35,39 +35,34 @@ class Server:
         return self.__indexed_dataset
 
     def get_hyper_index(self, index: int = 0, page_size: int = 10) -> Dict:
-    indexed_data = self.indexed_dataset()
-    assert isinstance(index, int), "Index must be an integer"
-    assert index >= 0, "Index must be non-negative"
+        """Deletion-resilient hypermedia pagination"""
+        indexed_data = self.indexed_dataset()
+        assert isinstance(index, int), "Index must be an integer"
+        assert index >= 0, "Index must be non-negative"
+        
+        max_index = max(indexed_data.keys())
+        assert index <= max_index, "Index out of range"
+        data = []
+        i = index
+        collected = 0
+        max_index = max(indexed_data.keys())
 
-    max_index = max(indexed_data.keys())
-    assert index <= max_index, "Index out of range"
+        while collected < page_size and i <= max_index:
+            if i in indexed_data:
+                data.append(indexed_data[i])
+                collected += 1
+            i += 1
 
-    # Move index forward if the requested index was deleted
-    while index not in indexed_data and index <= max_index:
-        index += 1
+        next_index = None
+        while i <= max_index:
+            if i in indexed_data:
+                next_index = i
+                break
+            i += 1
 
-    data = []
-    i = index
-    collected = 0
-
-    # Collect page_size items starting from the valid index
-    while collected < page_size and i <= max_index:
-        if i in indexed_data:
-            data.append(indexed_data[i])
-            collected += 1
-        i += 1
-
-    # Find next_index for next page
-    next_index = None
-    while i <= max_index:
-        if i in indexed_data:
-            next_index = i
-            break
-        i += 1
-
-    return {
-        "index": index,
-        "next_index": next_index,
-        "page_size": len(data),
-        "data": data
-    }
+        return {
+            "index": index,
+            "next_index": next_index,
+            "page_size": len(data),
+            "data": data
+        }
